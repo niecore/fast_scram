@@ -278,6 +278,10 @@ update_append_nonce(FullNonce, #nonce{client = Client, server = Server} = Nonce)
     end.
 
 -spec verify_cbind_input(binary(), fast_scram:channel_binding(), map()) -> ok | {error, binary()}.
+verify_cbind_input(_CBindInput, #channel_binding{data = <<>>}, _Data) ->
+    %% No actual channel binding data, skip GS2 flag consistency check.
+    %% This only matters when SCRAM-PLUS is not in use.
+    ok;
 verify_cbind_input(CBindInput, #channel_binding{data = CBindData} = CbConfig, Data) ->
     Constructed = fast_scram_attributes:cbind_input(
         fast_scram_attributes:gs2_header(CbConfig, Data),
